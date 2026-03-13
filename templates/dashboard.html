@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tus Finanzas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-body">
+
+    <div class="dashboard-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <a href="/dashboard?seccion=perfil&filtro={{ filtro }}" class="sidebar-btn">Mi perfil</a>
+            <a href="/dashboard?seccion=ingreso&filtro={{ filtro }}" class="sidebar-btn">Agregar ingreso</a>
+            <a href="/dashboard?seccion=gasto&filtro={{ filtro }}" class="sidebar-btn">Agregar gasto</a>
+            <a href="/dashboard?seccion=ahorro&filtro={{ filtro }}" class="sidebar-btn">Agregar ahorro</a>
+            <a href="/dashboard?seccion=informacion&filtro={{ filtro }}" class="sidebar-btn">Información</a>
+            <a href="/dashboard?seccion=graficas&filtro={{ filtro }}" class="sidebar-btn">Gráficas</a>
+            <a href="/logout" class="sidebar-btn logout-side">Cerrar sesión</a>
+        </aside>
+
+        <!-- CONTENIDO -->
+        <main class="main-content">
+            <div class="dashboard-container">
+                <h1>Tus Finanzas</h1>
+                <p class="subtitle">Bienvenido: {{ perfil.nombre }}</p>
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% if seccion == "perfil" %}
+                    {% if perfil %}
+                    <div class="card">
+                        <h2>Mi perfil</h2>
+                        <p><strong>Nombre:</strong> {{ perfil.nombre }}</p>
+                        <p><strong>Tipo de ingreso:</strong> {{ perfil.tipo_ingreso }}</p>
+                        <p><strong>Meta de ahorro:</strong> ${{ "%.2f"|format(perfil.meta_ahorro) }}</p>
+                        <p><strong>Ingreso mensual estimado:</strong> ${{ "%.2f"|format(ingreso_mensual_estimado) }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="grid">
+                        <div class="card resumen">
+                            <h3>Total ingresos</h3>
+                            <p class="monto ingreso">${{ "%.2f"|format(total_ingresos) }}</p>
+                        </div>
+
+                        <div class="card resumen">
+                            <h3>Total gastos</h3>
+                            <p class="monto gasto">${{ "%.2f"|format(total_gastos) }}</p>
+                        </div>
+
+                        <div class="card resumen">
+                            <h3>Total ahorrado</h3>
+                            <p class="monto ahorro">${{ "%.2f"|format(total_ahorros) }}</p>
+                        </div>
+
+                        <div class="card resumen">
+                            <h3>Disponible</h3>
+                            <p class="monto disponible">${{ "%.2f"|format(disponible) }}</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Progreso de ahorro</h2>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: {{ porcentaje_meta }}%;"></div>
+                        </div>
+                        <p>{{ "%.2f"|format(porcentaje_meta) }}% de tu meta alcanzada</p>
+                    </div>
+                {% endif %}
+
+              
+                {% if seccion == "graficas" %}
+    <div class="card">
+        <h2>Filtrar información</h2>
+        <form action="/dashboard" method="GET">
+            <input type="hidden" name="seccion" value="graficas">
+
+            <select name="filtro" onchange="this.form.submit()">
+                <option value="todos" {% if filtro == "todos" %}selected{% endif %}>Todos</option>
+                <option value="semana" {% if filtro == "semana" %}selected{% endif %}>Esta semana</option>
+                <option value="quincena" {% if filtro == "quincena" %}selected{% endif %}>Esta quincena</option>
+                <option value="mes" {% if filtro == "mes" %}selected{% endif %}>Este mes</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="graficas-grid">
+        <div class="card">
+            <h2>Ingresos vs gastos</h2>
+            <canvas id="graficaIngresosGastos"></canvas>
+        </div>
+
+        <div class="card">
+            <h2>Gráfica de gastos por categoría</h2>
+            {% if gastos_por_categoria %}
+                <canvas id="graficaGastos"></canvas>
+            {% else %}
+                <p>No hay datos suficientes para mostrar la gráfica.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+
+                {% if seccion == "ingreso" %}
+                    <div class="card">
+                        <h2>Agregar ingreso</h2>
+                        <form action="/guardar_ingreso" method="POST">
+                            <input type="number" step="0.01" name="monto" placeholder="Monto" required>
+
+                            <select name="tipo_periodo" required>
+                                <option value="semanal">Semanal</option>
+                                <option value="quincenal">Quincenal</option>
+                            </select>
+
+                            <input type="date" name="fecha" required>
+                            <button type="submit">Guardar ingreso</button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                {% if seccion == "gasto" %}
+                    <div class="card">
+                        <h2>Agregar gasto</h2>
+                        <form action="/guardar_gasto" method="POST">
+                            <input type="text" name="categoria" placeholder="Categoría" required>
+                            <input type="text" name="descripcion" placeholder="Descripción" required>
+                            <input type="number" step="0.01" name="monto" placeholder="Monto" required>
+                            <input type="date" name="fecha" required>
+                            <button type="submit">Guardar gasto</button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                {% if seccion == "ahorro" %}
+                    <div class="card">
+                        <h2>Agregar ahorro</h2>
+                        <form action="/guardar_ahorro" method="POST">
+                            <input type="number" step="0.01" name="monto" placeholder="Monto de ahorro" required>
+                            <input type="date" name="fecha" required>
+                            <button type="submit">Guardar ahorro</button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                {% if seccion == "informacion" %}
+                    <div class="card" id="informacion">
+                        <h2>Gastos por categoría</h2>
+                        {% if gastos_por_categoria %}
+                            {% for categoria, total in gastos_por_categoria.items() %}
+                                <div class="categoria-item">
+                                    <span>{{ categoria }}</span>
+                                    <strong>${{ "%.2f"|format(total) }}</strong>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No hay gastos registrados todavía.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="card">
+                        <h2>Lista de gastos</h2>
+                        {% if gastos %}
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th>Descripción</th>
+                                        <th>Monto</th>
+                                        <th>Fecha</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for gasto in gastos %}
+                                    <tr>
+                                        <td>{{ gasto.categoria }}</td>
+                                        <td>{{ gasto.descripcion }}</td>
+                                        <td>${{ "%.2f"|format(gasto.monto) }}</td>
+                                        <td>{{ gasto.fecha }}</td>
+                                        <td class="acciones">
+                                            <a href="/editar_gasto/{{ gasto.id }}" class="btn-edit">Editar</a>
+                                            <form action="/eliminar_gasto/{{ gasto.id }}" method="POST" onsubmit="return confirm('¿Seguro que quieres eliminar este gasto?');">
+                                                <button type="submit" class="btn-delete">Eliminar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p>No hay gastos registrados.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="card">
+                        <h2>Lista de ingresos</h2>
+                        {% if ingresos %}
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Monto</th>
+                                        <th>Periodo</th>
+                                        <th>Fecha</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ingreso in ingresos %}
+                                    <tr>
+                                        <td>${{ "%.2f"|format(ingreso.monto) }}</td>
+                                        <td>{{ ingreso.tipo_periodo }}</td>
+                                        <td>{{ ingreso.fecha }}</td>
+                                        <td class="acciones">
+                                            <a href="/editar_ingreso/{{ ingreso.id }}" class="btn-edit">Editar</a>
+                                            <form action="/eliminar_ingreso/{{ ingreso.id }}" method="POST" onsubmit="return confirm('¿Seguro que quieres eliminar este ingreso?');">
+                                                <button type="submit" class="btn-delete">Eliminar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p>No hay ingresos registrados.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="card">
+                        <h2>Lista de ahorros</h2>
+                        {% if ahorros %}
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Monto</th>
+                                        <th>Fecha</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ahorro in ahorros %}
+                                    <tr>
+                                        <td>${{ "%.2f"|format(ahorro.monto) }}</td>
+                                        <td>{{ ahorro.fecha }}</td>
+                                        <td class="acciones">
+                                            <a href="/editar_ahorro/{{ ahorro.id }}" class="btn-edit">Editar</a>
+                                            <form action="/eliminar_ahorro/{{ ahorro.id }}" method="POST" onsubmit="return confirm('¿Seguro que quieres eliminar este ahorro?');">
+                                                <button type="submit" class="btn-delete">Eliminar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p>No hay ahorros registrados.</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    {% if seccion == "graficas" %}
+<script>
+    const gastosPorCategoria = {{ gastos_por_categoria | tojson }};
+
+    const canvasGastos = document.getElementById('graficaGastos');
+    if (canvasGastos && gastosPorCategoria && Object.keys(gastosPorCategoria).length > 0) {
+        const ctx = canvasGastos.getContext('2d');
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(gastosPorCategoria),
+                datasets: [{
+                    label: 'Gastos por categoría',
+                    data: Object.values(gastosPorCategoria),
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#ef4444',
+                        '#22c55e',
+                        '#f59e0b',
+                        '#a855f7',
+                        '#06b6d4'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    const canvasComparacion = document.getElementById('graficaIngresosGastos');
+    if (canvasComparacion) {
+        const ctxComparacion = canvasComparacion.getContext('2d');
+
+        new Chart(ctxComparacion, {
+            type: 'bar',
+            data: {
+                labels: ['Ingresos', 'Gastos'],
+                datasets: [{
+                    label: 'Monto',
+                    data: [{{ total_ingresos }}, {{ total_gastos }}],
+                    backgroundColor: [
+                        '#22c55e',
+                        '#ef4444'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endif %}
+</body>
+</html>

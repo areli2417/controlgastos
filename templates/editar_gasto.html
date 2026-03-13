@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar gasto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-body">
+
+    <div class="login-wrapper">
+        <div class="register-card">
+            <h1 class="login-title">Editar gasto</h1>
+
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form action="/editar_gasto/{{ gasto.id }}" method="POST" class="register-form">
+                <input
+                    type="text"
+                    name="categoria"
+                    placeholder="Categoría"
+                    value="{{ gasto.categoria }}"
+                    required
+                >
+
+                <input
+                    type="text"
+                    name="descripcion"
+                    placeholder="Descripción"
+                    value="{{ gasto.descripcion }}"
+                    required
+                >
+
+                <input
+                    type="number"
+                    step="0.01"
+                    name="monto"
+                    placeholder="Monto"
+                    value="{{ gasto.monto }}"
+                    required
+                >
+
+                <input
+                    type="date"
+                    name="fecha"
+                    value="{{ gasto.fecha }}"
+                    required
+                >
+
+                <button type="submit" class="btn-main">Guardar cambios</button>
+            </form>
+
+            <a href="/dashboard" class="btn-secondary">volver al dashboard</a>
+        </div>
+    </div>
+
+</body>x
+</html>

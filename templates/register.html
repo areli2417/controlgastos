@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear cuenta - Control de gastos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-body">
+
+    <div class="login-wrapper">
+        <div class="register-card">
+            <h1 class="login-title">Crear cuenta</h1>
+
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form action="/register" method="POST" autocomplete="off" class="register-form">
+                <input
+                    type="text"
+                    name="nombre"
+                    placeholder="Nombre completo"
+                    autocomplete="off"
+                    required
+                >
+
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Correo electrónico"
+                    autocomplete="off"
+                    required
+                >
+
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Contraseña"
+                    autocomplete="new-password"
+                    required
+                >
+
+                <select name="tipo_ingreso" required>
+                    <option value="">Selecciona tu tipo de ingreso</option>
+                    <option value="semanal">Semanal</option>
+                    <option value="quincenal">Quincenal</option>
+                </select>
+
+                <input
+                    type="number"
+                    step="0.01"
+                    name="meta_ahorro"
+                    placeholder="Meta de ahorro"
+                    autocomplete="off"
+                    required
+                >
+
+                <button type="submit" class="btn-main">Crear cuenta</button>
+            </form>
+
+            <a href="/login" class="btn-secondary">volver al login</a>
+        </div>
+    </div>
+
+</body>
+</html>

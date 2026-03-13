@@ -1,0 +1,12 @@
+# Variables de entorno (claves, tokens, etc.)
+.env
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+
+# Configuración del editor
+.vscode/
+
+# Archivos del sistema
+.DS_Store

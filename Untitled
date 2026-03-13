@@ -1,0 +1,3 @@
+SECRET_KEY=clave_super_secreta_cambiala
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_KEY=tu_supabase_key
