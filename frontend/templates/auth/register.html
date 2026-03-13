@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Registrarse - FinanzasPro{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-slate-900">
+            Crea tu cuenta
+        </h2>
+        <p class="mt-2 text-center text-sm text-slate-600">
+            ¿Ya tienes cuenta? 
+            <a href="{{ url_for('auth.login') }}" class="font-medium text-primary-600 hover:text-primary-500">
+                Inicia sesión aquí
+            </a>
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+        <div class="bg-white py-8 px-4 shadow-xl shadow-slate-200 sm:rounded-2xl sm:px-10 border border-slate-100">
+            <form class="space-y-4" action="{{ url_for('auth.register') }}" method="POST">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="nombre" class="block text-sm font-medium text-slate-700">Nombre completo</label>
+                        <input id="nombre" name="nombre" type="text" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Ej. Juan Pérez">
+                    </div>
+                    <div>
+                        <label for="tipo_ingreso" class="block text-sm font-medium text-slate-700">Frecuencia de ingreso</label>
+                        <select id="tipo_ingreso" name="tipo_ingreso" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                            <option value="mensual">Mensual</option>
+                            <option value="quincenal">Quincenal</option>
+                            <option value="semanal">Semanal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="meta_ahorro" class="block text-sm font-medium text-slate-700">Meta de ahorro mensual ($)</label>
+                    <input id="meta_ahorro" name="meta_ahorro" type="number" step="0.01" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Ej. 500">
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-slate-700">Correo electrónico</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="tu@email.com">
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-700">Contraseña</label>
+                    <input id="password" name="password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="••••••••">
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" 
+                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all transform hover:scale-[1.01]">
+                        Registrarse
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
