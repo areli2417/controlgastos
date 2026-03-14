@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FinanzasPro{% endblock %}
+
+{% block content %}
+<div class="lg:flex lg:gap-8">
+    <!-- Sidebar / Navigation -->
+    <aside class="hidden lg:block w-64 flex-shrink-0">
+        <nav class="space-y-1 sticky top-24">
+            <a href="{{ url_for('dashboard.dashboard_view', seccion='resumen', filtro=filtro) }}" 
+               class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all {% if seccion == 'resumen' %}bg-primary-600 text-white shadow-lg shadow-primary-200{% else %}text-slate-600 hover:bg-white hover:text-primary-600{% endif %}">
+                <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i> Resumen
+            </a>
+            <a href="{{ url_for('dashboard.dashboard_view', seccion='ingresos', filtro=filtro) }}" 
+               class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all {% if seccion == 'ingresos' %}bg-primary-600 text-white shadow-lg shadow-primary-200{% else %}text-slate-600 hover:bg-white hover:text-primary-600{% endif %}">
+                <i data-lucide="trending-up" class="h-5 w-5 mr-3"></i> Ingresos
+            </a>
+            <a href="{{ url_for('dashboard.dashboard_view', seccion='gastos', filtro=filtro) }}" 
+               class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all {% if seccion == 'gastos' %}bg-primary-600 text-white shadow-lg shadow-primary-200{% else %}text-slate-600 hover:bg-white hover:text-primary-600{% endif %}">
+                <i data-lucide="trending-down" class="h-5 w-5 mr-3"></i> Gastos
+            </a>
+            <a href="{{ url_for('dashboard.dashboard_view', seccion='ahorros', filtro=filtro) }}" 
+               class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all {% if seccion == 'ahorros' %}bg-primary-600 text-white shadow-lg shadow-primary-200{% else %}text-slate-600 hover:bg-white hover:text-primary-600{% endif %}">
+                <i data-lucide="piggy-bank" class="h-5 w-5 mr-3"></i> Ahorros
+            </a>
+            <a href="{{ url_for('dashboard.dashboard_view', seccion='graficas', filtro=filtro) }}" 
+               class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all {% if seccion == 'graficas' %}bg-primary-600 text-white shadow-lg shadow-primary-200{% else %}text-slate-600 hover:bg-white hover:text-primary-600{% endif %}">
+                <i data-lucide="pie-chart" class="h-5 w-5 mr-3"></i> Gráficas
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1">
+        <!-- Header & Filters -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Hola, {{ perfil.nombre }}</h1>
+                <p class="text-slate-500 text-sm">Gestiona tus finanzas de forma inteligente.</p>
+            </div>
+            
+            <form action="{{ url_for('dashboard.dashboard_view') }}" method="GET" class="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                <input type="hidden" name="seccion" value="{{ seccion }}">
+                <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Filtrar:</span>
+                <select name="filtro" onchange="this.form.submit()" class="bg-transparent border-none text-sm font-medium text-slate-700 focus:ring-0 cursor-pointer pr-8">
+                    <option value="todos" {% if filtro == 'todos' %}selected{% endif %}>Todo el tiempo</option>
+                    <option value="semana" {% if filtro == 'semana' %}selected{% endif %}>Esta semana</option>
+                    <option value="quincena" {% if filtro == 'quincena' %}selected{% endif %}>Esta quincena</option>
+                    <option value="mes" {% if filtro == 'mes' %}selected{% endif %}>Este mes</option>
+                </select>
+            </form>
+        </div>
+
+        {% if seccion == 'resumen' %}
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                            <i data-lucide="arrow-up-right" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium text-slate-400 uppercase">Ingresos</span>
+                    </div>
+                    <div class="text-2xl font-bold text-slate-900">${{ "%.2f"|format(total_ingresos) }}</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 bg-rose-50 rounded-lg text-rose-600">
+                            <i data-lucide="arrow-down-right" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium text-slate-400 uppercase">Gastos</span>
+                    </div>
+                    <div class="text-2xl font-bold text-slate-900">${{ "%.2f"|format(total_gastos) }}</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                            <i data-lucide="piggy-bank" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium text-slate-400 uppercase">Ahorros</span>
+                    </div>
+                    <div class="text-2xl font-bold text-slate-900">${{ "%.2f"|format(total_ahorros) }}</div>
+                </div>
+
+                <div class="bg-indigo-600 p-6 rounded-2xl shadow-lg shadow-indigo-100 text-white overflow-hidden relative">
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-2 bg-white/10 rounded-lg text-white">
+                                <i data-lucide="wallet" class="h-5 w-5"></i>
+                            </div>
+                            <span class="text-xs font-medium text-white/70 uppercase">Disponible</span>
+                        </div>
+                        <div class="text-2xl font-bold">${{ "%.2f"|format(disponible) }}</div>
+                    </div>
+                    <!-- Decorative element -->
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Meta Progress -->
+                <div class="lg:col-span-2 bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-slate-900">Progreso de Meta Personal</h3>
+                        <span class="text-sm font-semibold text-primary-600 bg-primary-50 px-3 py-1 rounded-full">
+                            {{ "%.1f"|format(porcentaje_meta) }}%
+                        </span>
+                    </div>
+                    
+                    <div class="w-full bg-slate-100 rounded-full h-4 mb-4 overflow-hidden">
+                        <div class="bg-gradient-to-r from-primary-500 to-indigo-500 h-full rounded-full transition-all duration-1000 ease-out" 
+                             style="width: {{ porcentaje_meta }}%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-500">Ahorrado: <span class="font-bold text-slate-900">${{ "%.2f"|format(total_ahorros) }}</span></span>
+                        <span class="text-slate-500">Meta: <span class="font-bold text-slate-900">${{ "%.2f"|format(perfil.meta_ahorro) }}</span></span>
+                    </div>
+                    
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <p class="text-xs text-slate-500 uppercase mb-1">Frecuencia de Ingreso</p>
+                            <p class="font-bold text-slate-900 capitalize">{{ perfil.tipo_ingreso }}</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <p class="text-xs text-slate-500 uppercase mb-1">Ingreso Mensual Est.</p>
+                            <p class="font-bold text-slate-900">${{ "%.2f"|format(ingreso_mensual_estimado) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities (Simple list) -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+                    <h3 class="text-lg font-bold text-slate-900 mb-6">Acciones Rápidas</h3>
+                    <div class="space-y-3 flex-1">
+                        <a href="{{ url_for('dashboard.dashboard_view', seccion='ingresos') }}" class="flex items-center p-4 rounded-xl border border-emerald-100 bg-emerald-50/30 text-emerald-700 hover:bg-emerald-50 transition-colors group">
+                            <i data-lucide="plus-circle" class="h-5 w-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                            <span class="font-medium">Nuevo Ingreso</span>
+                        </a>
+                        <a href="{{ url_for('dashboard.dashboard_view', seccion='gastos') }}" class="flex items-center p-4 rounded-xl border border-rose-100 bg-rose-50/30 text-rose-700 hover:bg-rose-50 transition-colors group">
+                            <i data-lucide="minus-circle" class="h-5 w-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                            <span class="font-medium">Nuevo Gasto</span>
+                        </a>
+                        <a href="{{ url_for('dashboard.dashboard_view', seccion='ahorros') }}" class="flex items-center p-4 rounded-xl border border-blue-100 bg-blue-50/30 text-blue-700 hover:bg-blue-50 transition-colors group">
+                            <i data-lucide="heart" class="h-5 w-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                            <span class="font-medium">Guardar Ahorro</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if seccion == 'ingresos' %}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm sticky top-24">
+                        <h3 class="text-lg font-bold text-slate-900 mb-6">Registrar Ingreso</h3>
+                        <form action="{{ url_for('transactions.guardar_ingreso') }}" method="POST" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Monto</label>
+                                <div class="mt-1 relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">$</span>
+                                    <input type="number" step="0.01" name="monto" required class="block w-full pl-8 pr-3 py-2 border border-slate-300 rounded-xl focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Periodo</label>
+                                <select name="tipo_periodo" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                    <option value="semanal">Semanal</option>
+                                    <option value="quincenal">Quincenal</option>
+                                    <option value="mensual" selected>Mensual</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Fecha</label>
+                                <input type="date" name="fecha" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                            </div>
+                            <button type="submit" class="w-full bg-emerald-600 text-white py-2 px-4 rounded-xl font-semibold hover:bg-emerald-700 transition-colors flex items-center justify-center">
+                                <i data-lucide="check" class="h-4 w-4 mr-2"></i> Guardar Ingreso
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-900">Historial de Ingresos</h3>
+                            <span class="text-xs font-medium text-slate-400 uppercase">{{ filtro }}</span>
+                        </div>
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="min-w-full divide-y divide-slate-200">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Monto</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Periodo</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Fecha</th>
+                                        <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    {% for ingreso in ingresos %}
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-600">${{ "%.2f"|format(ingreso.monto) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 capitalize">{{ ingreso.tipo_periodo }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ ingreso.fecha }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                            <div class="flex justify-end items-center space-x-3">
+                                                <a href="{{ url_for('transactions.editar_ingreso', id=ingreso.id) }}" class="text-indigo-600 hover:text-indigo-900 transition-colors"><i data-lucide="edit-2" class="h-4 w-4"></i></a>
+                                                <form action="{{ url_for('transactions.eliminar_ingreso', id=ingreso.id) }}" method="POST" onsubmit="return confirm('¿Seguro?');">
+                                                    <button type="submit" class="text-rose-600 hover:text-rose-900 transition-colors"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="4" class="px-6 py-8 text-center text-slate-400 text-sm">Sin registros.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if seccion == 'gastos' %}
+             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm sticky top-24">
+                        <h3 class="text-lg font-bold text-slate-900 mb-6">Registrar Gasto</h3>
+                        <form action="{{ url_for('transactions.guardar_gasto') }}" method="POST" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Categoría</label>
+                                <input type="text" name="categoria" placeholder="Ej. Comida, Renta..." required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Descripción</label>
+                                <input type="text" name="descripcion" placeholder="Ej. Supermercado semanal" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Monto</label>
+                                <div class="mt-1 relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">$</span>
+                                    <input type="number" step="0.01" name="monto" required class="block w-full pl-8 pr-3 py-2 border border-slate-300 rounded-xl focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Fecha</label>
+                                <input type="date" name="fecha" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                            </div>
+                            <button type="submit" class="w-full bg-rose-600 text-white py-2 px-4 rounded-xl font-semibold hover:bg-rose-700 transition-colors flex items-center justify-center">
+                                <i data-lucide="check" class="h-4 w-4 mr-2"></i> Guardar Gasto
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <!-- Category Summary -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm mb-6 overflow-hidden">
+                        <h4 class="text-sm font-bold text-slate-900 mb-4 uppercase tracking-tighter">Gastos por Categoría</h4>
+                        <div class="flex flex-wrap gap-2">
+                            {% for cat, total in gastos_por_categoria.items() %}
+                            <div class="flex items-center px-4 py-2 bg-slate-50 border border-slate-100 rounded-full">
+                                <span class="text-xs font-medium text-slate-500 mr-2">{{ cat }}:</span>
+                                <span class="text-sm font-bold text-slate-900">${{ "%.2f"|format(total) }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-900">Historial de Gastos</h3>
+                        </div>
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="min-w-full divide-y divide-slate-200">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Categoría</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Descripción</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Monto</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Fecha</th>
+                                        <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    {% for gasto in gastos %}
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 bg-rose-50 text-rose-700 text-xs font-bold rounded-lg">{{ gasto.categoria }}</span></td>
+                                        <td class="px-6 py-4 text-sm text-slate-600 truncate max-w-[150px]">{{ gasto.descripcion }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">${{ "%.2f"|format(gasto.monto) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ gasto.fecha }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                            <div class="flex justify-end items-center space-x-3">
+                                                <a href="{{ url_for('transactions.editar_gasto', id=gasto.id) }}" class="text-indigo-600 hover:text-indigo-900 transition-colors"><i data-lucide="edit-2" class="h-4 w-4"></i></a>
+                                                <form action="{{ url_for('transactions.eliminar_gasto', id=gasto.id) }}" method="POST" onsubmit="return confirm('¿Seguro?');">
+                                                    <button type="submit" class="text-rose-600 hover:text-rose-900 transition-colors"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="5" class="px-6 py-8 text-center text-slate-400 text-sm">Sin registros.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if seccion == 'ahorros' %}
+            <!-- Similar structure for savings -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm sticky top-24">
+                        <h3 class="text-lg font-bold text-slate-900 mb-6">Separar Ahorro</h3>
+                        <form action="{{ url_for('transactions.guardar_ahorro') }}" method="POST" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Monto del Ahorro</label>
+                                <div class="mt-1 relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">$</span>
+                                    <input type="number" step="0.01" name="monto" required class="block w-full pl-8 pr-3 py-2 border border-slate-300 rounded-xl focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Fecha</label>
+                                <input type="date" name="fecha" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center">
+                                <i data-lucide="check" class="h-4 w-4 mr-2"></i> Guardar Ahorro
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-900">Historial de Ahorros</h3>
+                        </div>
+                        <div class="overflow-x-auto custom-scrollbar">
+                           <table class="min-w-full divide-y divide-slate-200">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Monto</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Fecha</th>
+                                        <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    {% for ahorro in ahorros %}
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600">${{ "%.2f"|format(ahorro.monto) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ ahorro.fecha }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                            <div class="flex justify-end items-center space-x-3">
+                                                <a href="{{ url_for('transactions.editar_ahorro', id=ahorro.id) }}" class="text-indigo-600 hover:text-indigo-900 transition-colors"><i data-lucide="edit-2" class="h-4 w-4"></i></a>
+                                                <form action="{{ url_for('transactions.eliminar_ahorro', id=ahorro.id) }}" method="POST" onsubmit="return confirm('¿Seguro?');">
+                                                    <button type="submit" class="text-rose-600 hover:text-rose-900 transition-colors"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="3" class="px-6 py-8 text-center text-slate-400 text-sm">Sin registros.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if seccion == 'graficas' %}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                 <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm min-h-[400px]">
+                    <h3 class="text-lg font-bold text-slate-900 mb-8 border-b border-slate-50 pb-4">Ingresos vs Gastos</h3>
+                    <div class="relative h-[300px]">
+                        <canvas id="graficaIngresosGastos"></canvas>
+                    </div>
+                 </div>
+
+                 <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm min-h-[400px]">
+                    <h3 class="text-lg font-bold text-slate-900 mb-8 border-b border-slate-50 pb-4">Distribución por Categoría</h3>
+                    <div class="relative h-[300px]">
+                        {% if gastos_por_categoria %}
+                            <canvas id="graficaGastos"></canvas>
+                        {% else %}
+                            <div class="flex flex-col items-center justify-center h-full text-slate-400">
+                                <i data-lucide="pie-chart" class="h-12 w-12 mb-2 opacity-20"></i>
+                                <p>No hay datos de gastos</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                 </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    {% if seccion == 'graficas' %}
+    // Gráfica de Barras
+    const ctxBar = document.getElementById('graficaIngresosGastos').getContext('2d');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: ['Ingresos', 'Gastos'],
+            datasets: [{
+                data: [{{ total_ingresos }}, {{ total_gastos }}],
+                backgroundColor: ['#10b981', '#ef4444'],
+                borderRadius: 12,
+                barThickness: 60,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    padding: 12,
+                    bodyFont: { size: 14, weight: '600' }
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    grid: { display: false },
+                    ticks: { callback: value => '$' + value }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Gráfica Doughnut
+    const catData = {{ gastos_por_categoria | tojson }};
+    if (Object.keys(catData).length > 0) {
+        const ctxPie = document.getElementById('graficaGastos').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(catData),
+                datasets: [{
+                    data: Object.values(catData),
+                    backgroundColor: [
+                        '#4f46e5', '#8b5cf6', '#ec4899', 
+                        '#f59e0b', '#3b82f6', '#06b6d4', '#10b981'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true, padding: 25, font: { weight: '600' } }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+</script>
+{% endblock %}
